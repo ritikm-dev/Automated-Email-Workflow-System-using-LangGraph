@@ -28,7 +28,7 @@ Return false only if:
 Be smart and interpret meaning, not just exact words.
 
 Output ONLY:
-true or false
+True or False in boolean not String
 """),
     HumanMessage(content=state["user_input"])
 ]
@@ -45,8 +45,12 @@ def human_opinion_analyser_agent(state : State):
     and it will ensure that it is related to
     human opinion where human opinion is needed.
     """
+    s = input("Enter Opinion: ")
+    state.update({
+            "human_opinion" : s
+                    })
     messages = [
-    SystemMessage(content=SystemMessage(content="""
+    SystemMessage(content="""
 Write a reply email.
 
 STRICT RULES:
@@ -66,14 +70,16 @@ Hi <Name>,
 
 Best regards,
 Ritik M
-""")),
-    HumanMessage(content=f"{state["human_opinion"]} and emailid : {email_id} and email content : {state['content']}")
+"""),
+        HumanMessage(content=f"{state['human_opinion']} and emailid : {email_id} and email content : {state['user_input']}")
 ]
+    print("Human opinion original: ",state["human_opinion"])
+   
     result = llm.invoke(messages)
     return {
-        "history" : [result],
-        "content" : result.content
-    }
+            "history" : [result],
+            "content" : result.content
+        }
 
 
 def no_human_opinion_agent(state : State):
@@ -82,9 +88,9 @@ def no_human_opinion_agent(state : State):
 Write a reply email.
 STRICT RULES:
 - Only write the email body (NO subject line)
+-Here You should not ask for anything u can hallocinate but reply to user's message
 - Do NOT include words like "Subject:" anywhere
 - Extract recipient name from email ID:
-  Example: shadhanan.project@gmail.com → Shadhanan
 - Replace placeholders like [Sender Name] with actual name
 - Do NOT include the email ID anywhere in the body
 - Keep it natural and human-like
@@ -94,7 +100,7 @@ Hi <Name>,
 Best regards,
 Ritik M
 """),
-             HumanMessage(content=state["user_input"])
+             HumanMessage(content=f"{state["user_input"]}" )
             ]
     result = llm.invoke(messages)
     return {
@@ -119,6 +125,7 @@ def reply_agent_subject(state : State):
             HumanMessage(content=f"""
             can you write a reply subject alone for mail and users message is {content}""")
     ]
+    print("human opinion subject",state["human_opinion"])
     result = llm.invoke(messages)
     print(result.content)
     return {
@@ -139,6 +146,7 @@ def reply_agent_emaiid(state : State):
             HumanMessage(content=f"""
             can you extract me email id and user input is : {email_id}""")
     ]
+    print("human opinion emailid",state["human_opinion"])
     result = llm.invoke(messages)
     print(result.content)
     return {

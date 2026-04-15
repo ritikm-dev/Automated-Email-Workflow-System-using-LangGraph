@@ -9,7 +9,7 @@ llm = ChatOpenAI(
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.0
 )
-class State(TypedDict):
+class State(TypedDict, total=False):
     history : Annotated[list,add_messages]
     user_input : str
     subject : str
