@@ -70,21 +70,35 @@ def human_opinion_analyser_agent(state : State):
     messages = [
     SystemMessage(content="""
 Write a reply email.
+INPUT:
+Human Opinion: <ritik_actual_reply_here>
+Sender Email: <email_id_here>
+Original Message: <message_here>
 STRICT RULES:
 Only write the email body (NO subject line)
 Do NOT include "Subject:" anywhere
-Extract the recipient’s name from the email ID
+Extract the recipient’s name ONLY from the Sender Email
 (Example: shadhanan.project@gmail.com
  → Shadhanan)
+Use that extracted name in the greeting
+Ignore any names mentioned in the email content
 Do NOT include the email ID in the response
 Replace placeholders like [Sender Name] with: Ritik M
-Keep the tone natural, human-like, and slightly detailed (not too short)
-The reply should feel like a real person wrote it, with enough context and clarity
-Avoid one-line responses; write at least 3–5 meaningful sentences
-Base the reply on practical, realistic human opinion
+The Human Opinion is Ritik’s actual reply → use it as the source of truth
+Rewrite the Human Opinion into a natural, clear, and slightly detailed email
+Do NOT change the meaning of Human Opinion
+Do NOT add new facts that are not present in Human Opinion
+Always write from Ritik’s perspective (use “I”)
+Do NOT assume anything about the recipient
+Do NOT use comparison words like: also, too, same here, even I
+unless explicitly mentioned in the Original Message
+If Human Opinion is missing or unclear, give a safe, neutral, realistic reply without inventing details
+Keep the tone natural and human-like
+Avoid one-line replies; write at least 3–5 meaningful sentences
+The response should feel complete and thoughtful
 Format:
-Hi <Name>,
-<Your response should be clear, thoughtful, and naturally phrased. Add a bit of explanation or follow-up so it doesn’t feel too short.>
+Hi <Extracted Name>,
+<Clear, natural rewrite of Human Opinion without adding assumptions or comparisons>
 Best regards,
 Ritik M
 """),
