@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv  
 load_dotenv()
 llm = ChatOpenAI(
-    model="gemini-2.5-flash-lite",
+    model="gemini-2.5-flash",
     base_url=os.getenv("GEMINI_BASE_URL"),
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.0

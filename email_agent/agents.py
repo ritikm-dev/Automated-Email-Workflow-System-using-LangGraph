@@ -16,21 +16,39 @@ def manager_agent(state : State):
     SystemMessage(content="""
 Decide whether this email requires a human reply.
 
-Return true if:
-- There is any date, deadline, timeline, or time-bound request
-- The sender expects confirmation, response, or action
-- It references meetings, follow-ups, or ongoing work
-- It involves decisions, approvals, or dependencies
+Return True immediately if:
 
-Return false only if:
-- The email is purely informational and does not expect a reply
+The email contains or refers to:
+meeting
+schedule
+availability
+calendar
+invite
+join
+attend
+confirm
+any date or time reference (e.g., tomorrow, Monday, 10 AM)
 
-Be smart and interpret meaning, not just exact words.
+Return True if:
+
+The response is needed to keep something moving forward within a timeframe
+
+Return False only if:
+
+The email is completely non-time-dependent
+It is casual/social (e.g., birthday wishes, greetings, congratulations)
+No action or coordination is required
+
+Important:
+
+Scheduling or meeting-related emails must ALWAYS return True
+Do NOT treat them as optional
+Do NOT rely on tone; rely on intent and keywords
 
 Output ONLY:
-True or False in boolean not String
+True or False
 """),
-    HumanMessage(content=state["user_input"])
+    HumanMessage(content=f"{state['user_input']}")
 ]
     result = llm.invoke(messages)
     return {
@@ -52,26 +70,25 @@ def human_opinion_analyser_agent(state : State):
     messages = [
     SystemMessage(content="""
 Write a reply email.
-
 STRICT RULES:
-- Only write the email body (NO subject line)
-- Do NOT include words like "Subject:" anywhere
-- Extract recipient name from email ID:
-  Example: shadhanan.project@gmail.com → Shadhanan
-- Replace placeholders like [Sender Name] with actual name
-- Do NOT include the email ID anywhere in the body
-- Keep it natural and human-like
--You should not hallocinate only reply based on human opinion because he is the one who will actually reply.
-
+Only write the email body (NO subject line)
+Do NOT include "Subject:" anywhere
+Extract the recipient’s name from the email ID
+(Example: shadhanan.project@gmail.com
+ → Shadhanan)
+Do NOT include the email ID in the response
+Replace placeholders like [Sender Name] with: Ritik M
+Keep the tone natural, human-like, and slightly detailed (not too short)
+The reply should feel like a real person wrote it, with enough context and clarity
+Avoid one-line responses; write at least 3–5 meaningful sentences
+Base the reply on practical, realistic human opinion
 Format:
 Hi <Name>,
-
-<message>
-
+<Your response should be clear, thoughtful, and naturally phrased. Add a bit of explanation or follow-up so it doesn’t feel too short.>
 Best regards,
 Ritik M
 """),
-        HumanMessage(content=f"{state['human_opinion']} and emailid : {email_id} and email content : {state['user_input']}")
+        HumanMessage(content=f"{state['human_opinion']} and recipitent emailid : {email_id} and email content : {state['user_input']}")
 ]
     print("Human opinion original: ",state["human_opinion"])
    
@@ -87,20 +104,23 @@ def no_human_opinion_agent(state : State):
     SystemMessage(content="""
 Write a reply email.
 STRICT RULES:
-- Only write the email body (NO subject line)
--Here You should not ask for anything u can hallocinate but reply to user's message
-- Do NOT include words like "Subject:" anywhere
-- Extract recipient name from email ID:
-- Replace placeholders like [Sender Name] with actual name
-- Do NOT include the email ID anywhere in the body
-- Keep it natural and human-like
+Only write the email body (NO subject line)
+Do NOT include "Subject:" anywhere
+Use the Recipient Name etracting from the Recipent email in the greeting
+Do NOT change or infer the name
+Do NOT use generic greetings like "Hi there"
+Do NOT include the email ID
+Replace placeholders like [Sender Name] with: Ritik M
+Do NOT ask questions; respond confidently
+Keep the tone natural and human-like
+Write at least 3–6 meaningful sentences
 Format:
-Hi <Name>,
-<message>
+Hi <Recipient Name>,
+<Write a clear, natural reply>
 Best regards,
 Ritik M
 """),
-             HumanMessage(content=f"{state["user_input"]}" )
+             HumanMessage(content=f"Now You are ritik write an email for the content : {state["user_input"]} and Reciptent email is {email_id}" )
             ]
     result = llm.invoke(messages)
     return {
